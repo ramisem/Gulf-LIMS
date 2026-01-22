@@ -1,0 +1,6 @@
+Flask==3.0.3
+Flask-Cors==4.0.0
+Pillow==10.3.0
+requests==2.31.0
+pywin32==306
+websocket-client==1.7.0
