@@ -219,7 +219,23 @@ class HL7Listener:
                                          slide_seq=slide_seq)
         action_instance.complete_staining_method(None, None, queryset)
 
+    def is_port_in_use(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.settimeout(1)
+                s.connect((self.host, self.port))
+                return True  # Port is in use
+            except (ConnectionRefusedError, OSError):
+                return False  # Port is not in use
+            except Exception as e:
+                self.log.error(f"Unexpected error while checking port: {e}")
+                return True  # Assume in use if error
+
     def start(self):
+        if self.is_port_in_use():
+            log.info(f"Service already running on {self.host}:{self.port}, skipping start.")
+            return
+
         log.info(f"HL7 Listener running on {self.host}:{self.port}")
 
         self.start_worker()  # Start the single consumer thread
