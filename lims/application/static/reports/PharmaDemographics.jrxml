@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.3.final using JasperReports Library version 6.21.3-4a3078d20785ebe464f18037d738d12fc98c13cf  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="PharmaDemographics" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="7f82693a-3bc2-4d3a-b791-4ab86d11b08b">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Gulf Lims"/>
+	<property name="com.jaspersoft.studio.unit." value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageHeight" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.pageWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.topMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.bottomMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.leftMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.rightMargin" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnWidth" value="pixel"/>
+	<property name="com.jaspersoft.studio.unit.columnSpacing" value="pixel"/>
+	<parameter name="mergereportid" class="java.lang.String"/>
+	<queryString language="SQL">
+		<![CDATA[select 
+TO_CHAR(collection_dt::DATE, 'DD/MM/YYYY') collection_dt,
+TO_CHAR(receive_dt::TIMESTAMP, 'DD/MM/YYYY HH24:MI') received_dt,
+pat.mrn,
+pat.gender,
+TO_CHAR(pat.birth_dt::DATE, 'DD/MM/YYYY') dob,
+concat(EXTRACT(YEAR FROM AGE(NOW(), pat.birth_dt::DATE)), ' y.o.') AS age,
+concat(phy.first_name, ' ', phy.last_name) as physician_name,
+TO_CHAR(NOW()::TIMESTAMP, 'DD/MM/YYYY HH24:MI') current_date,
+concat(su.first_name, ' ', su.last_name) as created_by
+from analysis_mergereporting mr 
+inner join accessioning_accession acc on mr.accession_id_id = acc.accession_id
+inner join masterdata_patient pat on pat.patient_id = acc.patient_id_id
+left join masterdata_physician phy on acc.doctor_id = phy.physician_id
+inner join analysis_mergereportingdtl mrd on mr.merge_reporting_id = mrd.merge_reporting_id_id
+inner join analysis_reportoption ro on ro.report_option_id = mrd.report_option_id_id
+inner join security_user su on su.id = mr.assign_pathologist_id
+inner join masterdata_accessiontype mdat on mdat.accession_type_id = acc.accession_type_id
+where mr.merge_reporting_id =  $P{mergereportid} 
+group by 
+pat.first_name,
+pat.last_name,
+acc.collection_dt,
+acc.receive_dt,
+pat.mrn,
+pat.gender,
+pat.birth_dt,
+phy.first_name,
+phy.last_name,
+su.first_name,
+su.last_name]]>
+	</queryString>
+	<field name="collection_dt" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="collection_dt"/>
+		<property name="com.jaspersoft.studio.field.label" value="collection_dt"/>
+	</field>
+	<field name="received_dt" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="received_dt"/>
+		<property name="com.jaspersoft.studio.field.label" value="received_dt"/>
+	</field>
+	<field name="mrn" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="mrn"/>
+		<property name="com.jaspersoft.studio.field.label" value="mrn"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="masterdata_patient"/>
+	</field>
+	<field name="gender" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="gender"/>
+		<property name="com.jaspersoft.studio.field.label" value="gender"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="masterdata_patient"/>
+	</field>
+	<field name="dob" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="dob"/>
+		<property name="com.jaspersoft.studio.field.label" value="dob"/>
+	</field>
+	<field name="age" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="age"/>
+		<property name="com.jaspersoft.studio.field.label" value="age"/>
+	</field>
+	<field name="physician_name" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="physician_name"/>
+		<property name="com.jaspersoft.studio.field.label" value="physician_name"/>
+	</field>
+	<field name="current_date" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="current_date"/>
+		<property name="com.jaspersoft.studio.field.label" value="current_date"/>
+	</field>
+	<field name="created_by" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="created_by"/>
+		<property name="com.jaspersoft.studio.field.label" value="created_by"/>
+	</field>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<columnHeader>
+		<band height="80" splitType="Stretch">
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="60" width="240" height="20" uuid="2261eb5a-3110-4ab1-b846-61cd265d7e1e"/>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{physician_name} != null ? "<b>PHYSICIAN: </b>" + $F{physician_name} : ""]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="381" y="0" width="214" height="20" uuid="ceddeaf6-8564-4f85-bc5f-e0367632d934">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{gender}!= null ? "<b>SEX: </b>" + $F{gender}: "<b>SEX: </b>"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="381" y="40" width="214" height="20" uuid="5b48e274-1fc9-4a31-a861-7decb233599b">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{received_dt}!= null ? "<b>DATE RECEIVED: </b>" + $F{received_dt}: "<b>DATE RECEIVED: </b>"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="381" y="60" width="214" height="20" uuid="39ce8703-d737-47f8-b7a4-70a6841e9c41">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA["<b>DATE REPORTED: </b>" +$F{current_date}]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="381" y="20" width="214" height="20" uuid="d2aa097e-107e-4d02-9d2b-5e190b0c9974">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{collection_dt}!= null ? "<b>DATE COLLECTED: </b>" + $F{collection_dt}: "<b>DATE COLLECTED: </b>"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="240" height="20" uuid="e6854037-a9c8-4d4d-b454-74704fef38bf">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{dob}!= null ? "<b>DATE OF BIRTH: </b>" + $F{dob}: "<b>DATE OF BIRTH: </b>"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="40" width="240" height="20" uuid="c5705f17-b3ff-4d1c-9022-a6b2de8c1492"/>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{mrn}!= null ? "<b>MRN: </b>" +  $F{mrn}: "<b>MRN: </b>"]]></textFieldExpression>
+			</textField>
+			<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="20" width="240" height="20" uuid="6e34bbfb-9034-4d92-b275-e2864cba82bd">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<textElement verticalAlignment="Middle" markup="html">
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{age}!= null ? "<b>AGE: </b>" + $F{age}: "<b>AGE: </b>"]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+</jasperReport>

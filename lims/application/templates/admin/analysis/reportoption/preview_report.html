@@ -1,0 +1,97 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block title %}Preview Report{% endblock %}
+{% block content %}
+<div class="pdf-preview-container">
+    {% if pdf_url %}
+    <object
+            data="{{ pdf_url }}#zoom=125"
+            type="application/pdf"
+            class="pdf-object">
+    </object>
+    {% else %}
+    <p>No PDF available.</p>
+    {% endif %}
+</div>
+
+<br/>
+<br/>
+<br/>
+
+<div class="object-tools">
+    <a id="next-sample-btn" class="btn btn-block btn-primary btn-sm" href="#" onclick="reportsignout()">
+        Report Signout
+    </a>
+    <a id="back-to-report-btn" class="btn btn-block btn-secondary btn-sm back-report-btn" href="#"
+       onclick="backToReportEdit()">
+        Back To Reporting Screen
+    </a>
+</div>
+<!-- Report Signout Modal -->
+<div id="esigModal"
+     style="display: none; background: #fff; border: 1px solid #ccc; padding: 20px; position: fixed; top: 30%; left: 40%; z-index: 1000;width: 30vw;height: 30vh">
+    <h3>ESig Required</h3>
+    <input id="username" type="text" readonly placeholder="username"
+           style="width: 100%; padding: 5px; margin-bottom: 10px;" value="{{ request.user }}">
+    <input id="password" type="password" placeholder="Enter password"
+           style="width: 100%; padding: 5px; margin-bottom: 10px;">
+    <button id="confirmsignout" class="button btn-primary" onclick="confirmSignout()">Confirm</button>
+    <button id="cancelsignout" class="button btn-primary" onclick="cancelSignout()">Cancel</button>
+</div>
+<div id="modalOverlay" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+    "></div>
+<style>
+        .pdf-preview-container {
+            width: 80%;
+            height: calc(100vh - 250px);
+            margin: 20px auto;
+        }
+
+        .pdf-object {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .report-signout-wrapper {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        #next-sample-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+        .back-report-btn {
+        background-color: #28a745 !important; /* Bootstrap green */
+        color: white !important;
+        font-size: 16px;
+        padding: 10px 24px;
+        width: 280px;
+        max-width: 100%;
+        margin: 10px auto 0;
+        display: block;
+    }
+}
+
+
+
+
+
+</style>
+{% endblock %}
+{% block extrahead %}
+{{ block.super }}
+<script src="{% static 'js/analysis/report_preview.js' %}"></script>
+{% endblock %}

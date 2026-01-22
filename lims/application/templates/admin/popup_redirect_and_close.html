@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+</head>
+<body>
+<script type="text/javascript">
+    if (window.opener) {
+        window.opener.location.href = "{{ redirect_url }}";
+        window.close();
+    } else {
+        //redirecting this window (in case popup was blocked or no opener)
+        window.location.href = "{{ redirect_url }}";
+    }
+
+</script>
+<p>Redirecting...</p>
+</body>
+</html>

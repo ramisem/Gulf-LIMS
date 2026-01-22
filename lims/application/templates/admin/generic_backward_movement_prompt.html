@@ -1,0 +1,189 @@
+{% extends "admin/minimal_base.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+    h2 {
+        text-align: center !important;
+        display: block;
+        width: 100%;
+        margin-top: 20px;
+    }
+
+    .form-outer-wrapper {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .form-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dropdown-wrapper {
+        margin-bottom: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .dropdown-wrapper label {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    #backward-movement-form button[type="submit"] {
+        margin-top: 10px;
+    }
+
+    .button-row {
+        margin-top: 10px;
+    }
+
+    #processing {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
+        color: red;
+    }
+
+    .errornote {
+        color: red;
+        margin-bottom: 10px;
+    }
+
+
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>Select the Landing Step for Backward Movement</h2>
+<div class="form-outer-wrapper">
+    <form id="backward-movement-form">
+        {% csrf_token %}
+        <div class="form-wrapper">
+            {% if error_message %}
+            <p class="errornote">{{ error_message }}</p>
+            {% else %}
+            <div class="dropdown-wrapper">
+                <label for="landing_step">Landing Step:</label>
+                <select name="landing_step" id="landing_step">
+                    <option value="">--- Select a Step ---</option>
+                    {% for step in prior_steps %}
+                    <option value="{{ step.workflow_step_id__step_id }}"
+                            data-step-no="{{ step.workflow_step_id__step_no }}"
+                            data-action="{{ step.action }}"
+                            data-workflow-id="{{step.workflow_id_id}}"
+                            data-department="{{step.workflow_step_id__department}}">
+                        {{ step.workflow_step_id__step_id }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="button-row">
+                <button type="submit">Submit</button>
+                <button type="button" id="close-popup-button">Close</button>
+            </div>
+            {% endif %}
+        </div>
+
+        {# Loop through selected_objects to get their primary keys #}
+        {% for obj in selected_objects %}
+        {# model_id_field_name will be 'ihcworkflow_id' or 'sample_id' #}
+        <input type="hidden" name="{{ model_id_field_name }}" value="{{ obj.pk }}">
+        {% endfor %}
+
+        <input type="hidden" name="current_step" value="{{ current_step }}" id="current_step_hidden">
+
+        <div id="processing">
+            <strong>Processing, please wait...</strong>
+        </div>
+    </form>
+</div>
+
+<script>
+document.getElementById("backward-movement-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const landingStep = form.querySelector("#landing_step")?.value;
+
+    if (!landingStep) {
+        alert("Please select a Landing Step.");
+        return;
+    }
+
+    const landingStepSelect = document.getElementById("landing_step");
+    const landingStepNo = landingStepSelect.options[landingStepSelect.selectedIndex].getAttribute('data-step-no');
+    const landingStepAction = landingStepSelect.options[landingStepSelect.selectedIndex].getAttribute('data-action');
+    const landingWorkflowId = landingStepSelect.options[landingStepSelect.selectedIndex].getAttribute('data-workflow-id');
+    const departmentId = landingStepSelect.options[landingStepSelect.selectedIndex].getAttribute('data-department');
+
+    const currentStep = document.getElementById("current_step_hidden").value;
+
+    const modelIdFieldName = "{{ model_id_field_name }}";
+    const selectedObjectIds = [];
+    const idInputs = form.querySelectorAll(`input[name='${modelIdFieldName}']`);
+    idInputs.forEach(input => {
+        selectedObjectIds.push(input.value);
+    });
+
+    form.querySelector("button[type='submit']").disabled = true;
+    document.getElementById("processing").style.display = "block";
+
+    const submitUrl = "{{ submit_url }}";
+
+    const idsKey = "{{ model_name_plural_lower }}"; // e.g., 'ihcworkflows', 'samples'
+    const requestBody = {
+        landing_step: landingStep,
+        landing_step_no: landingStepNo,
+        landing_step_action: landingStepAction,
+        landing_workflow_id: landingWorkflowId,
+        department: departmentId,
+        current_step: currentStep
+    };
+    requestBody[idsKey] = selectedObjectIds;
+
+    fetch(submitUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": form.querySelector('[name="csrfmiddlewaretoken"]').value
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === "ok") {
+            if (window.opener && !window.opener.closed) {
+                window.opener.location.reload();
+            }
+            window.close();
+        } else {
+            alert("Something went wrong.");
+            form.querySelector("button[type='submit']").disabled = false;
+            document.getElementById("processing").style.display = "none";
+        }
+    })
+    .catch(error => {
+        alert("Network error.");
+        console.error(error);
+        form.querySelector("button[type='submit']").disabled = false;
+        document.getElementById("processing").style.display = "none";
+    });
+});
+
+document.getElementById("close-popup-button").addEventListener("click", function () {
+    window.close();
+});
+
+
+</script>
+{% endblock %}

@@ -1,0 +1,322 @@
+{% extends "admin/popup_base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* Content Styling Only - Preserving your Form/Table look */
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        padding: 20px;
+    }
+
+    h2 {
+        text-align: center !important;
+        display: block;
+        width: 100%;
+        margin-top: 0px;
+        margin-bottom: 20px;
+    }
+
+    #print-label-form {
+        max-width: 1000px;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        box-sizing: border-box;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+    }
+
+    .printer-selection-section {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 5px;
+        background-color: #f9f9f9;
+        display: flex;
+        gap: 20px;
+        align-items: center;
+        box-sizing: border-box;
+    }
+
+    #print-label-form .printer-selection-section,
+    #print-label-form table {
+        width: 100%;
+        max-width: none;
+        margin-left: 0;
+        margin-right: 0;
+        box-sizing: border-box;
+    }
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        box-sizing: border-box;
+    }
+
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+    }
+
+    input[readonly] {
+        border: none;
+        background: transparent;
+        font-weight: bold;
+    }
+
+    select {
+        width: 100%;
+        padding: 4px;
+    }
+
+    .printer-selection-section label {
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .printer-selection-section select {
+        flex-grow: 1;
+        max-width: 300px;
+    }
+
+    form button[type="submit"] {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 20px;
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    form button[type="submit"]:hover {
+        background-color: #0056b3;
+    }
+
+    #processing {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+</style>
+
+<h2>Select Label Method for the Container</h2>
+
+<form id="print-label-form">
+    {% csrf_token %}
+
+    <div class="printer-selection-section">
+        <label for="id_printer_name">You are Printing to:</label>
+        <select id="id_printer_name" name="printer_name">
+            {% if printer_selection_data.printers %}
+                {% if printer_selection_data.default_printer_id %}
+                    {% for printer in printer_selection_data.printers %}
+                        <option value="{{ printer.printer_path }}" data-communication-type="{{ printer.communication_type }}"
+                            {% if printer.printer_id == printer_selection_data.default_printer_id %}selected{% endif %}>
+                            {{ printer.printer_name }}
+                        </option>
+                    {% endfor %}
+                {% else %}
+                    <option value="">No Default Printer</option>
+                    {% for printer in printer_selection_data.printers %}
+                        <option value="{{ printer.printer_path }}" data-communication-type="{{ printer.communication_type }}">
+                            {{ printer.printer_name }}
+                        </option>
+                    {% endfor %}
+                {% endif %}
+            {% else %}
+                <option value="">No printers available</option>
+            {% endif %}
+        </select>
+
+        <label for="id_communication_type">Communication Type:</label>
+        <select id="id_communication_type" name="communication_type" disabled>
+            {% if printer_selection_data.default_printer_id %}
+                <option value="{{ printer_selection_data.default_communication_type }}" selected>
+                    {{ printer_selection_data.default_communication_type }}
+                </option>
+            {% else %}
+                <option value="">Select a printer</option>
+            {% endif %}
+        </select>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Accession</th>
+                <th>Part</th>
+                <th>Block/Cassette #</th>
+                <th>Container Type</th>
+                <th>Sample ID</th>
+                <th>Label Method</th>
+                <th>Label<br>Events</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in sample_data %}
+                <tr>
+                    <td>
+                        {{ entry.sample.accession_id }}
+                        <input type="hidden" name="accession_id_{{ forloop.counter }}" value="{{ entry.sample.accession_id }}">
+                    </td>
+                    <td>
+                        {{ entry.sample.part_no }}
+                        <input type="hidden" name="part_no_{{ forloop.counter }}" value="{{ entry.sample.part_no }}">
+                    </td>
+                    <td>
+                        {{ entry.sample.block_or_cassette_seq }}
+                        <input type="hidden" name="block_or_cassette_seq_{{ forloop.counter }}" value="{{ entry.sample.block_or_cassette_seq }}">
+                    </td>
+                    <td>
+                        {{ entry.sample.container_type }}
+                        <input type="hidden" name="container_type_{{ forloop.counter }}" value="{{ entry.sample.container_type }}">
+                    </td>
+                    <td>
+                        {{ entry.sample.sample_id }}
+                        <input type="hidden" name="sample_id_{{ forloop.counter }}" value="{{ entry.sample.sample_id }}">
+                    </td>
+                    <td>
+                        <select name="label_method_{{ forloop.counter }}">
+                            <option value="">-- Select --</option>
+                            {% for lm in entry.label_methods %}
+                                <option value="{{ lm.id }}" {% if lm.default %}selected{% endif %}>{{ lm.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td>
+                        {{ entry.sample.label_count }}
+                        <input type="hidden" name="label_count_{{ forloop.counter }}" value="{{ entry.sample.label_count }}">
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <input type="hidden" name="printer_category" value="{{printer_category}}">
+    <input type="hidden" name="total_rows" value="{{ sample_data|length }}">
+
+    <div id="processing" style="display: none; text-align: center; margin-top: 20px; color:red;">
+        <strong>Processing, please wait...</strong>
+    </div>
+
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const printerNameSelect = document.getElementById('id_printer_name');
+    const communicationTypeSelect = document.getElementById('id_communication_type');
+
+    function updateCommunicationType() {
+        const selectedOption = printerNameSelect.options[printerNameSelect.selectedIndex];
+        const communicationType = selectedOption ? selectedOption.dataset.communicationType : '';
+
+        // Clear existing options
+        communicationTypeSelect.innerHTML = '';
+
+        // Add the selected communication type as the only option
+        const newOption = document.createElement('option');
+        newOption.value = communicationType;
+        newOption.textContent = communicationType;
+        newOption.selected = true;
+        communicationTypeSelect.appendChild(newOption);
+    }
+
+    // Initial update when the page loads
+    updateCommunicationType();
+
+    // Listen for changes on the printer name dropdown
+    printerNameSelect.addEventListener('change', updateCommunicationType);
+
+    document.getElementById("print-label-form").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        const form = e.target;
+        const total = parseInt(form.querySelector('[name="total_rows"]').value);
+        const printer_category = form.querySelector('[name="printer_category"]').value;
+        const selected_printer_id = printerNameSelect.value;
+        const selected_communication_type = communicationTypeSelect.value;
+
+        const rows = [];
+
+        for (let i = 1; i <= total; i++) {
+            const sample_id = form.querySelector(`[name="sample_id_${i}"]`)?.value;
+            const accession_id = form.querySelector(`[name="accession_id_${i}"]`)?.value;
+            const part_no = form.querySelector(`[name="part_no_${i}"]`)?.value;
+            const block_or_cassette_seq = form.querySelector(`[name="block_or_cassette_seq_${i}"]`)?.value;
+            const container_type = form.querySelector(`[name="container_type_${i}"]`)?.value;
+            const label_method_id = form.querySelector(`[name="label_method_${i}"]`)?.value;
+
+            if (!label_method_id || label_method_id === "") {
+                alert(`Please select a label method for sample ID: ${sample_id}`);
+                return;
+            }
+
+            rows.push({
+                sample_id,
+                accession_id,
+                part_no,
+                block_or_cassette_seq,
+                container_type,
+                label_method_id
+            });
+        }
+
+        if (!selected_printer_id) {
+            alert("Please select a printer.");
+            return;
+        }
+        if (!selected_communication_type) {
+            alert("Printer communication type is not available. Please select a printer.");
+            return;
+        }
+
+        document.getElementById("processing").style.display = "block";
+
+        fetch("/gulfcoastpathologists/sample/sample/print-label-submit/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": form.querySelector('[name="csrfmiddlewaretoken"]').value
+            },
+            body: JSON.stringify({
+                printer_category: printer_category,
+                selected_printer_id: selected_printer_id,
+                selected_communication_type: selected_communication_type,
+                rows: rows
+            })
+        }).then(response => response.json())
+          .then(data => {
+              document.getElementById("processing").style.display = "none";
+              if (data.status === "ok") {
+                  console.log("Labels submitted for printing!");
+                  window.opener.location.reload();
+                  window.close();
+              } else {
+                const message = data.message ? data.message : 'Something went wrong.';
+                window.opener.location.reload();
+                alert(message);
+                window.close();
+              }
+          }).catch(error => {
+              document.getElementById("processing").style.display = "none";
+              alert("Network error. Please check your connection.");
+              console.error(error);
+          });
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% load i18n admin_urls %}
+<div>
+    {# Save button - changed from "Save and continue editing" #}
+    {% if show_save_and_continue %}
+    <div class="form-group">
+        <input type="submit" value="{% translate 'Save' %}" class="btn btn-success form-control" name="_continue">
+    </div>
+    {% endif %}
+
+
+    {% if is_popup %}
+        <div class="form-group">
+            <input type="submit" value="{% translate 'Save' %}" class="btn btn-success form-control" name="_save">
+        </div>
+    {% endif %}
+
+    {# Return button - changed from "Close" #}
+    <div class="form-group">
+        {% url opts|admin_urlname:'changelist' as changelist_url %}
+        <a href="{% add_preserved_filters changelist_url %}" class="btn btn-secondary form-control">{% translate 'Return' %}</a>
+    </div>
+
+    {# Save and add another button - HIDE if show_add_another_button is explicitly False #}
+    {% if show_save_and_add_another %}
+        {% if show_add_another_button != False %}
+        <div class="form-group">
+            <input type="submit" class="btn btn-info form-control" value="{% translate 'Save and add another' %}" name="_addanother">
+        </div>
+        {% endif %}
+    {% endif %}
+
+    {# Delete button #}
+    {% if show_delete_link and original %}
+    <div class="form-group">
+        {% url opts|admin_urlname:'delete' original.pk|admin_urlquote as delete_url %}
+        <a href="{% add_preserved_filters delete_url %}" class="btn btn-danger form-control">{% translate "Delete" %}</a>
+    </div>
+    {% endif %}
+
+    {# Save as new button - optional #}
+    {% if show_save_as_new %}
+    <div class="form-group">
+        <input type="submit" value="{% translate 'Save as new' %}" class="btn btn-warning form-control" name="_saveasnew">
+    </div>
+    {% endif %}
+</div>

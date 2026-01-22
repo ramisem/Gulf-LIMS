@@ -1,0 +1,98 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block extrahead %}
+{{ block.super }}
+{% endblock %}
+
+{% block content_title %}
+{{ block.super }}
+<br/><br/>
+
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+{{ block.super }}
+<div style="margin-top: 20px;">
+    {% if original %}
+        <div class="object-tools" style="margin-top: 10px;">
+            <!-- Hidden field for JS -->
+            <input type="hidden" id="id_bioproject_id" value="{{ original.pk }}">
+            <a id="perform-qc"
+               class="btn btn-block btn-success btn-sm"
+               href="#" onclick="openQCModal()">
+                Perform QC
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+
+<!--  Perform QC Modal -->
+<div id="performQCModal" style="
+        display: none;
+        background: #fff;
+        border: 1px solid #ccc;
+        padding: 20px;
+        position: fixed;
+        top: 25%;
+        left: 35%;
+        z-index: 1001;
+        width: 30vw;
+        max-width: 480px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        border-radius: 8px;">
+
+    <h3 style="color: darkblue; margin-top: 0; margin-bottom: 15px;">Perform QC</h3>
+
+    <div style="margin-bottom: 12px;">
+        <label for="qcStatus" style="display: block; margin-bottom: 5px;">QC:</label>
+        <select id="qcStatus" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;">
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
+        </select>
+    </div>
+
+    <div style="margin-bottom: 12px;">
+        <label for="qcReason" style="display: block; margin-bottom: 5px;">QC Reason:</label>
+        <textarea id="qcReason" rows="3" style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"></textarea>
+    </div>
+
+    <div style="margin-bottom: 12px;">
+        <label for="qcUsername" style="display: block; margin-bottom: 5px;">Username:</label>
+        <input id="qcUsername" type="text" readonly
+               value="{{ request.user }}"
+               style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"/>
+    </div>
+
+    <div style="margin-bottom: 12px;">
+        <label for="qcPassword" style="display: block; margin-bottom: 5px;">Password:</label>
+        <input id="qcPassword" type="password" placeholder="Enter password"
+               style="width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #ccc;"/>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+        <button id="confirmQC" class="button btn-primary" onclick="performQC()">Perform</button>
+        <button id="cancelQC" class="button" onclick="cancelpopup()">Cancel</button>
+    </div>
+</div>
+
+<!--  Overlay -->
+<div id="modalOverlay" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.45);
+        z-index: 1000;">
+</div>
+
+<!--  JS File -->
+<script src="{% static 'js/masterdata/qcpendingbioproject.js' %}"></script>
+{% endblock %}

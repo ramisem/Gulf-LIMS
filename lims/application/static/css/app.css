@@ -1,0 +1,25 @@
+.custom-image {
+    background: #FFFFFF;
+}
+.fa-inverse {
+    color: #353131;
+}
+.navbar-light {
+    background-color: #000;
+}
+.navbar-secondary {
+    background-color: #000000;
+    color: #000;
+}
+.brand-link .brand-image {
+    float: left;
+    line-height: .8;
+    margin-left: .8rem;
+    margin-right: .5rem;
+    margin-top: -3px;
+    max-height: 33px;
+    width: 150px;
+}
+textarea#codearea {
+    width: 800px;
+}

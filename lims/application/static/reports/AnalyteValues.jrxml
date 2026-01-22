@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.3.final using JasperReports Library version 6.21.3-4a3078d20785ebe464f18037d738d12fc98c13cf  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AnalyteValues" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" isIgnorePagination="true" uuid="7e852194-26e8-4ff2-af9f-3fea99d7c123">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Gulf Lims"/>
+	<style name="Table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+			<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+		</box>
+		<paragraph tabStopWidth="40"/>
+	</style>
+	<style name="Table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<pen lineWidth="0.0"/>
+		<box bottomPadding="0">
+			<pen lineWidth="0.0" lineColor="#000000"/>
+			<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+		</box>
+		<paragraph tabStopWidth="40"/>
+	</style>
+	<style name="Table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box bottomPadding="0">
+			<pen lineWidth="0.0" lineColor="#000000"/>
+			<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.0" lineColor="#000000"/>
+			<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+			<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="Table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+			<topPen lineWidth="0.5" lineColor="#000000"/>
+			<leftPen lineWidth="0.5" lineColor="#000000"/>
+			<bottomPen lineWidth="0.5" lineColor="#000000"/>
+			<rightPen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<subDataset name="AnalyteDataSet" uuid="95506922-d103-4645-9a76-6e5f98c6e906">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Gulf Lims"/>
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<parameter name="mergereportingid" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select concat(sm.part_no, '. ') as part_num,
+concat(sm.body_site, ', ', sm.sub_site, ' (', sm.collection_method, '):') as analyte_id, 
+mrd. analyte_value
+from
+analysis_mergereportingdtl mrd
+inner join tests_analyte ta on mrd.analyte_id_id = ta.analyte_id
+inner join analysis_reportoption ro on mrd.report_option_id_id = ro.report_option_id
+inner join sample_sample sm on ro.root_sample_id_id = sm.sample_id
+where mrd.merge_reporting_id_id =  $P{mergereportingid} 
+and analyte = 'Diagnosis'
+and mrd. analyte_value is not null 
+and mrd. analyte_value <> ''
+order by sm.part_no]]>
+		</queryString>
+		<field name="part_num" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="part_num"/>
+			<property name="com.jaspersoft.studio.field.label" value="part_num"/>
+		</field>
+		<field name="analyte_id" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="analyte_id"/>
+			<property name="com.jaspersoft.studio.field.label" value="analyte_id"/>
+		</field>
+		<field name="analyte_value" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="analyte_value"/>
+			<property name="com.jaspersoft.studio.field.label" value="analyte_value"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="analysis_mergereportingdtl"/>
+		</field>
+	</subDataset>
+	<subDataset name="ImageDataset" uuid="519755bf-9f55-4137-90b3-bdcb0a2b4ee1">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Gulf Lims"/>
+		<queryString>
+			<![CDATA[]]>
+		</queryString>
+	</subDataset>
+	<subDataset name="OtherAnalyteDataSet" uuid="49e889a9-1b46-4e04-8881-2b3303b16429">
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Gulf Lims"/>
+		<parameter name="mergereportingid" class="java.lang.String"/>
+		<queryString language="SQL">
+			<![CDATA[select 
+concat(sm.part_no, '. ') as part_num,
+mrd.analyte_value
+from
+analysis_mergereportingdtl mrd
+inner join tests_analyte ta on mrd.analyte_id_id = ta.analyte_id
+inner join analysis_reportoption ro on mrd.report_option_id_id = ro.report_option_id
+inner join sample_sample sm on ro.root_sample_id_id = sm.sample_id
+where mrd.merge_reporting_id_id =   $P{mergereportingid} 
+and mrd.analyte_value is not null and mrd.analyte_value <> ''
+and analyte = 'Specimen Comments\Micro'
+order by sm.part_no]]>
+		</queryString>
+		<field name="part_num" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="part_num"/>
+			<property name="com.jaspersoft.studio.field.label" value="part_num"/>
+		</field>
+		<field name="analyte_value" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="analyte_value"/>
+			<property name="com.jaspersoft.studio.field.label" value="analyte_value"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="analysis_mergereportingdtl"/>
+		</field>
+	</subDataset>
+	<subDataset name="GrossingDataSet" uuid="09645f65-f589-4bd8-a880-a838dafdff48">
+		<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Gulf Lims"/>
+		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+		<parameter name="mergereportingid" class="java.lang.String"/>
+		<queryString>
+			<![CDATA[select 
+distinct 
+concat(sm.part_no, '. ',sm.gross_description) as grossdescription,
+sm.part_no
+from 
+analysis_mergereportingdtl mrd
+inner join analysis_reportoption ro on mrd.report_option_id_id = ro.report_option_id
+inner join sample_sample sm on ro.root_sample_id_id = sm.sample_id
+where mrd.merge_reporting_id_id =  $P{mergereportingid} 
+and sm.gross_description is not null and sm.gross_description <> ''
+order by sm.part_no]]>
+		</queryString>
+		<field name="grossdescription" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="grossdescription"/>
+			<property name="com.jaspersoft.studio.field.label" value="grossdescription"/>
+		</field>
+		<field name="part_no" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="part_no"/>
+			<property name="com.jaspersoft.studio.field.label" value="part_no"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="sample_sample"/>
+		</field>
+	</subDataset>
+	<parameter name="mergereportid" class="java.lang.String"/>
+	<parameter name="bodysite_image_path" class="java.lang.String"/>
+	<parameter name="subreport_dir" class="java.lang.String" isForPrompting="false"/>
+	<queryString language="SQL">
+		<![CDATA[select 
+count(merge_reporting_id) cnt, amendment_type
+from
+analysis_mergereporting mr
+where mr.merge_reporting_id =  $P{mergereportid} 
+group by merge_reporting_id, amendment_type]]>
+	</queryString>
+	<field name="cnt" class="java.lang.Long">
+		<property name="com.jaspersoft.studio.field.name" value="cnt"/>
+		<property name="com.jaspersoft.studio.field.label" value="cnt"/>
+	</field>
+	<field name="amendment_type" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="amendment_type"/>
+		<property name="com.jaspersoft.studio.field.label" value="amendment_type"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="analysis_mergereporting"/>
+	</field>
+	<variable name="IMAGE_FILE_LIST" class="java.util.List">
+		<variableExpression><![CDATA[java.util.Arrays.asList($P{bodysite_image_path}.split(";"))]]></variableExpression>
+		<initialValueExpression><![CDATA[java.util.Arrays.asList($P{bodysite_image_path}.split(";"))]]></initialValueExpression>
+	</variable>
+	<variable name="HAS_IMAGE_PATH" class="java.lang.Boolean">
+		<variableExpression><![CDATA[$P{bodysite_image_path} != null && !$P{bodysite_image_path}.trim().isEmpty()]]></variableExpression>
+	</variable>
+	<detail>
+		<band height="90">
+			<staticText>
+				<reportElement x="0" y="0" width="560" height="30" isRemoveLineWhenBlank="true" forecolor="#050505" uuid="9bcb6bc1-5c57-4e21-a117-1f225fa854ea">
+					<printWhenExpression><![CDATA[$F{amendment_type}.equalsIgnoreCase( "Amended" )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[*** AMENDED REPORT ***]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="30" width="560" height="30" isRemoveLineWhenBlank="true" forecolor="#050505" uuid="59113730-02e4-4d60-b218-e1822ce55fda">
+					<printWhenExpression><![CDATA[$F{amendment_type}.equalsIgnoreCase( "Addend" )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[*** ADDENDED REPORT ***]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="60" width="560" height="30" isRemoveLineWhenBlank="true" forecolor="#050505" uuid="7d8c1e61-bdcb-415f-a07a-06b2e51b2691">
+					<printWhenExpression><![CDATA[$F{amendment_type}.equalsIgnoreCase( "Corrected" )]]></printWhenExpression>
+				</reportElement>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="14" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[*** CORRECTED REPORT ***]]></text>
+			</staticText>
+		</band>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<componentElement>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="594" height="20" isRemoveLineWhenBlank="true" uuid="2a99746b-fc07-4146-a721-9e775b8a72cf">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
+					<property name="com.jaspersoft.studio.components.autoresize.next" value="true"/>
+					<property name="com.jaspersoft.studio.components.autoresize.proportional" value="true"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="AnalyteDataSet" uuid="aba5a00f-c4ef-4350-b145-29faeacd42c3">
+						<datasetParameter name="mergereportingid">
+							<datasetParameterExpression><![CDATA[$P{mergereportid}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="594" uuid="2b1091c5-ef23-40df-a5d6-7db1cabc795b">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<jr:tableHeader style="Table 1_TH" height="20" rowSpan="1">
+							<staticText>
+								<reportElement style="Table_TD" positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="594" height="20" uuid="d569a37d-5bea-4da1-b8b2-8f34171fefd8"/>
+								<box>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textElement verticalAlignment="Middle">
+									<font fontName="SansSerif" isBold="true"/>
+									<paragraph lineSpacingSize="0.0"/>
+								</textElement>
+								<text><![CDATA[DIAGNOSIS:]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="Table 1_TD" height="16">
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+								<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="565" height="16" isRemoveLineWhenBlank="true" uuid="0b54f921-d8fc-4821-95a9-8462f87263fd">
+									<property name="com.jaspersoft.studio.unit.spacingAfter" value="px"/>
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+								</reportElement>
+								<box>
+									<pen lineWidth="0.0"/>
+								</box>
+								<textElement verticalAlignment="Top" markup="html">
+									<font fontName="SansSerif"/>
+									<paragraph lineSpacing="Single" lineSpacingSize="0.0"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{part_num} + "<b>" + $F{analyte_id} + "</b><br/>" + $F{analyte_value}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+		<band height="1" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<subreport>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="595" height="1" isRemoveLineWhenBlank="true" uuid="a07ff78b-c799-4f70-9238-af4445b361b6">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<printWhenExpression><![CDATA[$V{HAS_IMAGE_PATH}]]></printWhenExpression>
+				</reportElement>
+				<dataSourceExpression><![CDATA[new net.sf.jasperreports.engine.data.JRBeanCollectionDataSource($V{IMAGE_FILE_LIST})]]></dataSourceExpression>
+				<subreportExpression><![CDATA[$P{subreport_dir} + "ImageDetailSubreport.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="2" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<subreport>
+				<reportElement style="Table 1_TH" positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="595" height="2" isRemoveLineWhenBlank="true" backcolor="#FFFFFF" uuid="2590b90e-ac11-47fa-921c-7f97105b44b5">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<subreportParameter name="mergereportid">
+					<subreportParameterExpression><![CDATA[$P{mergereportid}]]></subreportParameterExpression>
+				</subreportParameter>
+				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+				<subreportExpression><![CDATA[$P{subreport_dir} + "MicroscopicDescription.jasper"]]></subreportExpression>
+			</subreport>
+		</band>
+		<band height="20" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<componentElement>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="595" height="20" isRemoveLineWhenBlank="true" isPrintWhenDetailOverflows="true" uuid="f29efa0a-0d9d-409f-b466-5450b2bbdb11">
+					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
+					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
+					<property name="com.jaspersoft.studio.table.style.detail" value="Table_TD"/>
+					<property name="com.jaspersoft.studio.components.autoresize.proportional" value="true"/>
+					<property name="com.jaspersoft.studio.components.autoresize.next" value="true"/>
+				</reportElement>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="GrossingDataSet" uuid="ff46018a-cbfb-4b7a-b177-b6bb23f1c762">
+						<datasetParameter name="mergereportingid">
+							<datasetParameterExpression><![CDATA[$P{mergereportid}]]></datasetParameterExpression>
+						</datasetParameter>
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="595" uuid="cac110ea-addb-484d-825c-0c23c6628999">
+						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column1"/>
+						<jr:tableHeader style="Table_TH" height="20" rowSpan="1">
+							<staticText>
+								<reportElement style="Table_TD" positionType="Float" stretchType="RelativeToTallestObject" mode="Opaque" x="0" y="0" width="595" height="20" uuid="c1a6d03e-e59e-4dc9-9287-4183697cd44f"/>
+								<box>
+									<pen lineWidth="0.0"/>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textElement verticalAlignment="Middle">
+									<font fontName="SansSerif" isBold="true"/>
+									<paragraph lineSpacingSize="0.0"/>
+								</textElement>
+								<text><![CDATA[GROSS DESCRIPTION:]]></text>
+							</staticText>
+						</jr:tableHeader>
+						<jr:detailCell style="Table_TD" height="16">
+							<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
+							<property name="com.jaspersoft.studio.unit.height" value="px"/>
+							<textField textAdjust="StretchHeight" isBlankWhenNull="true">
+								<reportElement positionType="Float" stretchType="RelativeToTallestObject" mode="Transparent" x="0" y="0" width="565" height="16" isRemoveLineWhenBlank="true" uuid="1824b33f-7982-404e-b7bf-c6f1cc40900e">
+									<property name="com.jaspersoft.studio.unit.width" value="px"/>
+									<property name="com.jaspersoft.studio.unit.height" value="px"/>
+								</reportElement>
+								<box bottomPadding="0">
+									<pen lineWidth="0.0"/>
+									<topPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<leftPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<bottomPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+									<rightPen lineWidth="0.0" lineStyle="Solid" lineColor="#000000"/>
+								</box>
+								<textElement verticalAlignment="Top" markup="html">
+									<font fontName="SansSerif"/>
+									<paragraph lineSpacingSize="0.0"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{grossdescription}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</detail>
+</jasperReport>

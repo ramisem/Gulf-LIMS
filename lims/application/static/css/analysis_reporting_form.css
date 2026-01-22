@@ -1,0 +1,42 @@
+/* Generic grid layout for all form-group rows */
+.form-group > .row {
+  display: grid;
+  grid-template-columns: 25% 30% 18% 22%;
+  column-gap: 1em;
+  row-gap: 1em;
+  align-items: baseline;
+  overflow-x: hidden;
+}
+
+/* Prevent label wrapping */
+.form-group > .row > label {
+  white-space: nowrap;
+}
+
+/* Field boxes take full width of grid column */
+.form-group > .row > .fieldBox {
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Values can wrap naturally */
+.fieldBox .readonly {
+  white-space: normal;
+}
+
+/* Prevent horizontal scroll globally */
+body {
+  overflow-x: hidden;
+}
+
+/* Mobile layout: single column */
+@media (max-width: 768px) {
+  .form-group > .row {
+    grid-template-columns: 100% !important;
+  }
+
+  .form-group > .row > label,
+  .form-group > .row > .fieldBox {
+    grid-column: span 1 !important;
+  }
+}

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.3.final using JasperReports Library version 6.21.3-4a3078d20785ebe464f18037d738d12fc98c13cf  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ImageDetailSubreport" pageWidth="595" pageHeight="842" columnWidth="595" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="b3dfd286-8f6e-469f-9de2-2dcc5f95667c">
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Gulf Lims"/>
+	<queryString language="SQL">
+		<![CDATA[]]>
+	</queryString>
+	<field name="_THIS" class="java.lang.String"/>
+	<detail>
+		<band height="180" splitType="Stretch">
+			<property name="com.jaspersoft.studio.unit.height" value="px"/>
+			<printWhenExpression><![CDATA[!$F{_THIS}.toLowerCase().contains("category2")]]></printWhenExpression>
+			<frame>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="400" height="180" isRemoveLineWhenBlank="true" uuid="08915480-11c5-40e5-9632-3990d5579eba">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="ShowOutOfBoundContent" value="false"/>
+				</reportElement>
+				<image scaleImage="RetainShape" isUsingCache="false">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="400" height="180" isRemoveLineWhenBlank="true" uuid="a020e1eb-fc88-4c76-9d28-9d7df23f38bb">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					</reportElement>
+					<imageExpression><![CDATA[$F{_THIS} == null || $F{_THIS}.trim().isEmpty() || $F{_THIS}.toLowerCase().contains("category2")
+    ? null 
+    : new java.io.File($F{_THIS}.trim())]]></imageExpression>
+				</image>
+			</frame>
+		</band>
+		<band height="494" splitType="Stretch">
+			<printWhenExpression><![CDATA[$F{_THIS}.toLowerCase().contains("category2")]]></printWhenExpression>
+			<frame>
+				<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="555" height="494" isRemoveLineWhenBlank="true" uuid="810f970b-2ce2-4fc7-89e2-dce4cba061f0">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+					<property name="ShowOutOfBoundContent" value="false"/>
+				</reportElement>
+				<image scaleImage="RetainShape" isUsingCache="false">
+					<reportElement positionType="Float" stretchType="RelativeToTallestObject" x="0" y="0" width="555" height="494" isRemoveLineWhenBlank="true" uuid="3f2bf13f-cd4c-49f2-b5bc-4d9adb098529">
+						<property name="com.jaspersoft.studio.unit.height" value="px"/>
+						<property name="com.jaspersoft.studio.unit.width" value="px"/>
+						<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					</reportElement>
+					<imageExpression><![CDATA[$F{_THIS} == null || $F{_THIS}.trim().isEmpty() || !$F{_THIS}.toLowerCase().contains("category2")
+    ? null 
+    : new java.io.File($F{_THIS}.trim())]]></imageExpression>
+				</image>
+			</frame>
+		</band>
+	</detail>
+</jasperReport>

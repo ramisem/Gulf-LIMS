@@ -1,0 +1,273 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block title %}Preview Report{% endblock %}
+{% block content %}
+<div class="pdf-preview-container">
+    {% if pdf_url %}
+    <object
+            data="{{ pdf_url }}#zoom=125"
+            type="application/pdf"
+            class="pdf-object">
+    </object>
+    {% else %}
+    <p>No PDF available.</p>
+    {% endif %}
+</div>
+
+<br/>
+<br/>
+<br/>
+
+<div style="margin-top: 20px;">
+
+    <div class="object-tools">
+        <a id="next-sample-btn"
+           class="btn btn-block btn-primary btn-sm"
+           href="#"
+           onclick="amendReport()">
+            Amend Report
+        </a>
+    </div>
+
+    <div class="object-tools" style="margin-top: 10px;">
+        <a id="back-to-report-btn"
+		class="btn btn-secondary form-control return-url-link"
+		href="#" onclick="backToReportEditFromSignout()">
+            {% translate 'Return' %}
+        </a>
+    </div>
+
+</div>
+
+<style>
+        .pdf-preview-container {
+            width: 80%;
+            height: calc(100vh - 250px);
+            margin: 20px auto;
+        }
+
+        .pdf-object {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .report-signout-wrapper {
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        #next-sample-btn {
+            padding: 10px 5px;
+            font-size: 10px;
+        }
+        .back-report-btn {
+        background-color: #28a745 !important; /* Bootstrap green */
+        color: white !important;
+        font-size: 10px;
+        padding: 10px 10px;
+        width: 120px;
+        max-width: 100%;
+        margin: 10px auto 0;
+        display: block;
+    }
+}
+
+</style>
+
+<!-- ===================== MODAL ======================= -->
+<div id="esigModal" style="display:none;">
+    <div class="esig-modal-card"
+         style="
+            max-width:900px;
+            width:80vw;
+            min-width:700px;
+            max-height:80vh;
+            overflow-y:auto;
+            padding:20px;
+            background:#fff;
+            border-radius:6px;
+            box-shadow:0 8px 40px rgba(0,0,0,0.35);
+            position:fixed;
+            top:50%;
+            left:50%;
+            transform:translate(-50%, -50%);
+            z-index:2000;
+         ">
+
+        <!-- Modal Header -->
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="color:red; text-shadow:0 0 5px #ff0000; margin:0;">ESig Required</h3>
+            <button type="button" onclick="cancelSignout()"
+                    style="background:none;border:none;font-size:22px;cursor:pointer;">&times;</button>
+        </div>
+
+        <!-- Amendment Type -->
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;">
+            <div style="flex:1 1 220px;">
+                <label for="amendmentTypeSelect">Amendment Type</label>
+                <select id="amendmentTypeSelect"
+                        style="width:100%; padding:8px; margin-top:4px;"
+                        onchange="populate_macros()"></select>
+            </div>
+        </div>
+
+        <!-- Macro Select -->
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;">
+            <div style="flex:1 1 260px;">
+                <label for="macroSelect">Select Macro</label>
+                <select id="macroSelect"
+                        style="width:100%; padding:8px; margin-top:4px;"
+                        onchange="populateMacroContent()">
+                    <option value="">-- Select Macro --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Editor -->
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;">
+            <div style="width:100%;">
+                <label for="macroContentEditor">Macro Content (editable)</label>
+                <textarea id="macroContentEditor"></textarea>
+            </div>
+        </div>
+
+        <!-- User -->
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;">
+            <div style="flex:1 1 220px;">
+                <label for="username">User</label>
+                <input id="username" type="text" readonly
+                       value="{{ request.user }}"
+                       style="width:100%; padding:8px; margin-top:4px;">
+            </div>
+        </div>
+
+        <!-- Password -->
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:15px;">
+            <div style="flex:1 1 180px;">
+                <label for="password">Password</label>
+                <input id="password" type="password"
+                       placeholder="Enter password"
+                       style="width:100%; padding:8px; margin-top:4px;">
+            </div>
+        </div>
+
+        <div id="esig-error" style="display:none; color:#a94442; margin-top:10px;"></div>
+
+        <!-- Footer Buttons -->
+        <div style="text-align:right; margin-top:18px;">
+            <input type="hidden" name="csrfmiddlewaretoken"
+                   id="csrf_token_input" value="{{ csrf_token }}">
+            <button id="cancelsignout" onclick="cancelSignout()" type="button"
+                    class="button btn-secondary" style="margin-right:8px;">Cancel</button>
+            <button id="confirmsignout" onclick="confirmAmendReportSignOut()"
+                    type="button" class="button btn-primary">Confirm</button>
+        </div>
+
+    </div>
+</div>
+
+<div id="modalOverlay"
+     style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1999;">
+</div>
+
+{% endblock %}
+
+{% block extrahead %}
+
+{{ block.super }}
+<script src="{% static 'js/analysis/merge_report_preview.js' %}"></script>
+
+<script>
+/* ------------ SUMMERNOTE LITE LOADER ----------- */
+function loadSummernote(callback) {
+    if ($.fn.summernote) {
+        callback();
+        return;
+    }
+
+    $("head").append(`
+        <link rel="stylesheet"
+         href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-lite.min.css">
+    `);
+
+    $.getScript(
+        "https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.20/summernote-lite.min.js",
+        callback
+    );
+}
+
+/* ------------ INIT EDITOR ----------- */
+function initEditor() {
+    $("#macroContentEditor").summernote({
+        height: 250,
+        placeholder: "Enter macro content…",
+        toolbar: [
+            ['style', ['bold', 'italic', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['view', ['fullscreen']]
+        ]
+    });
+
+    $('.note-editable').css({
+        maxHeight: "250px",
+        overflowY: "auto"
+    });
+}
+
+/* Wrap amendReport to load Summernote first */
+const originalAmendReport = amendReport;
+amendReport = function () {
+    loadSummernote(() => initEditor());
+    originalAmendReport();
+};
+
+/* -------------- FIX FULLSCREEN INSIDE MODAL ---------------- */
+$(document).on('click', '.note-btn.fullscreen', function () {
+    setTimeout(function () {
+        if ($('.note-editor').hasClass('fullscreen')) {
+            // When fullscreen ON
+            $('#esigModal .esig-modal-card').css({
+                position: 'static',
+                width: '100%',
+                maxWidth: '100%',
+                height: '100vh',
+                maxHeight: '100vh',
+                transform: 'none'
+            });
+        } else {
+            // When fullscreen OFF
+            $('#esigModal .esig-modal-card').css({
+                position: 'fixed',
+                width: '80vw',
+                maxWidth: '900px',
+                height: 'auto',
+                maxHeight: '80vh',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+            });
+        }
+    }, 100);
+});
+</script>
+
+<style>
+/* Fullscreen editor above everything */
+.note-editor.fullscreen {
+    z-index: 5000 !important;
+    background:white !important;
+}
+
+/* Editable area size in fullscreen */
+.note-editor.fullscreen .note-editable {
+    height: calc(100vh - 120px) !important;
+    overflow-y: auto !important;
+}
+</style>
+
+{% endblock %}

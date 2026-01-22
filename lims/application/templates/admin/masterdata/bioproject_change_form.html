@@ -1,0 +1,39 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block extrahead %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/custom.css' %}">
+{% endblock %}
+
+{% block content_title %}
+{{ block.super }}
+{% endblock %}
+
+{% block submit_buttons_bottom %}
+{{ block.super }}
+
+<div style="margin-top: 20px;">
+    {% if original %}
+    <div class="object-tools" style="margin-top: 10px;">
+        <a id="push-to-qc"
+           class="btn btn-block btn-warning btn-sm"
+           href="#">
+            Push to QC
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="object-tools" style="margin-top: 10px;">
+        <a href="{% url 'admin:masterdata_bioproject_changelist' %}" class="btn btn-danger form-control">
+            {% translate 'Return' %}
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script src="{% static 'js/masterdata/masterdata.js' %}"></script>
+{% endblock %}

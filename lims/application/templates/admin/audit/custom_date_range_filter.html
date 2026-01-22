@@ -1,0 +1,48 @@
+<style>
+    .admindatefilter .timezonewarning {
+        display: none;
+    }
+
+</style>
+<link rel="stylesheet" type="text/css" href="/static/admin/css/widgets.css">
+<script type="text/javascript" src="/gulfcoastpathologists/jsi18n/"></script>
+<script type="text/javascript" nonce="">
+
+function embedScript(url) {
+    return new Promise(function pr(resolve, reject) {
+        var newScript = document.createElement("script");
+        newScript.type = "text/javascript";
+        newScript.src = url;
+        newScript.onload = resolve;
+        newScript.setAttribute("nonce", "");
+        document.head.appendChild(newScript);
+    });
+}
+
+django.jQuery('document').ready(function () {
+    if (!('DateTimeShortcuts' in window)) {
+        var promiseList = [];
+        promiseList.push(embedScript("/static/admin/js/calendar.js"));
+        promiseList.push(embedScript("/static/admin/js/admin/DateTimeShortcuts.js"));
+    }
+});
+
+</script>
+
+<div class="admindatefilter">
+    <p class="date">
+        <input type="text" name="timestamp__range__gte" class="vDateField" size="10"
+               placeholder="From Date" id="id_timestamp__range__gte">
+    </p>
+
+    <p class="date">
+        <input type="text" name="timestamp__range__lte" class="vDateField" size="10"
+               placeholder="To Date" id="id_timestamp__range__lte">
+
+    </p>
+    <input type="hidden" id="timestamp-query-string" value="?">
+
+</div>
+
+
+<script type="text/javascript" src="js/rangefilter/iife.js"></script>

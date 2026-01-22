@@ -1,0 +1,108 @@
+{% extends "admin/minimal_base.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  h2 {
+    text-align: center !important;
+    margin-top: 20px;
+  }
+  .form-outer-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  .form-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 400px;
+    width: 100%;
+  }
+  .dropdown-wrapper {
+    margin-bottom: 15px;
+    width: 100%;
+  }
+  label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+  }
+  select {
+    width: 100%;
+    padding: 6px 10px;
+    font-size: 1rem;
+  }
+  .button-row {
+    margin-top: 15px;
+    text-align: center;
+  }
+  .errornote {
+    color: red;
+    margin-bottom: 10px;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<h2>
+    {% if popup_action == 'amend' %}
+    {% trans "Select Methodology for Report Amendment" %}
+    {% else %}
+    {% trans "Select Methodology for Report Generation" %}
+    {% endif %}
+</h2>
+
+{# --- Highlighted code: Display error messages if any --- #}
+{% if errors %}
+<ul class="errornote">
+    {% for error in errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<div class="form-outer-wrapper">
+    <form method="post"
+          id="generate-report-form"
+          class="form-wrapper"
+          {% if form_action_url %}
+          action="{{ form_action_url }}"
+          {% endif %}
+    >
+        {% csrf_token %}
+        {% if messages %}
+        {% for message in messages %}
+        <p class="errornote">{{ message }}</p>
+        {% endfor %}
+        {% endif %}
+        <div class="dropdown-wrapper">
+            <select name="selected_methodology" id="selected_methodology" required>
+                <option value="" disabled selected>{% trans "Choose one" %}</option>
+                {% for m in methodologies %}
+                <option value="{{ m }}">{{ m }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        {# --- Highlighted code: Hidden inputs for selected objects --- #}
+        {% for obj in queryset %}
+        <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}">
+        {% endfor %}
+
+        {# --- Highlighted code: Hidden input for raw comma-separated ids --- #}
+        {% if ids_param %}
+        <input type="hidden" name="ids" value="{{ ids_param }}">
+        {% endif %}
+
+        <input type="hidden" name="methodology_confirmed" value="1">
+
+        <div class="button-row">
+            <button type="submit" class="default">{% trans "Submit" %}</button>
+            <button type="button" onclick="window.close();" style="margin-left: 10px;">{% trans "Close" %}</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

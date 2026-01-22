@@ -1,0 +1,260 @@
+{% extends base_template %}
+{% block content %}
+<h2 style="text-align: center; margin-top: 20px;">Select Mode of Liquid Sample Preparation</h2>
+
+<form id="sample-data-form">
+    {% csrf_token %}
+
+    <div class="checkbox-column" style="margin: 20px;">
+        <label><input type="checkbox" id="cellblock-checkbox"> Cell Block</label>
+        <label><input type="checkbox" id="smearing-checkbox"> Smearing</label>
+    </div>
+
+    <div id="smearing-section" style="display: none;">
+        <h3>Smearing Samples</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 8px; border: 1px solid #ddd;">Sample ID</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Accession</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Part</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Sample Type</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Container Type</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Test Name</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Liquid Sample Preparation Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in sample_test_data %}
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry.sample.sample_id }}
+                        <input type="hidden" name="smearing_sample_id_{{ forloop.counter }}" value="{{ entry.sample.sample_id }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry.sample.accession_id }}
+                        <input type="hidden" name="smearing_accession_id_{{ forloop.counter }}" value="{{ entry.sample.accession_id }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry.sample.part_no }}
+                        <input type="hidden" name="smearing_part_no_{{ forloop.counter }}" value="{{ entry.sample.part_no }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry.sample.sample_type }}
+                        <input type="hidden" name="smearing_sample_type_{{ forloop.counter }}" value="{{ entry.sample.sample_type }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry.sample.container_type }}
+                        <input type="hidden" name="smearing_container_type_{{ forloop.counter }}" value="{{ entry.sample.container_type }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry.test_name }}
+                        <input type="hidden" name="smearing_test_name_{{ forloop.counter }}" value="{{ entry.test_name }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <select name="smearing_prep_type_{{ forloop.counter }}" style="width: 100%; padding: 4px;">
+                            <option value="Manual" {% if entry.default_smearing == "Manual" %}selected{% endif %}>Manual Smearing</option>
+                            <option value="Thin Prep" {% if entry.default_smearing == "Thin Prep" %}selected{% endif %}>Thin Prep Smearing</option>
+                        </select>
+                    </td>
+                </tr>
+                <input type="hidden" name="smearing_test_id_{{ forloop.counter }}" value="{{ entry.test_id }}">
+                <input type="hidden" name="smearing_sample_test_map_id_{{ forloop.counter }}" value="{{ entry.sample_test_map_id }}">
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="hidden" name="smearing_total_rows" value="{{ sample_test_data|length }}">
+    </div>
+
+    <div id="cellblock-section" style="display: none;">
+        <h3>Cell Block Samples</h3>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 8px; border: 1px solid #ddd;">Sample ID</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Accession</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Part</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Sample Type</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Container Type</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Liquid Sample Preparation Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry2 in sample_data %}
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry2.sample.sample_id }}
+                        <input type="hidden" name="cellblock_sample_id_{{ forloop.counter }}" value="{{ entry2.sample.sample_id }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry2.sample.accession_id }}
+                        <input type="hidden" name="cellblock_accession_id_{{ forloop.counter }}" value="{{ entry2.sample.accession_id }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry2.sample.part_no }}
+                        <input type="hidden" name="cellblock_part_no_{{ forloop.counter }}" value="{{ entry2.sample.part_no }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry2.sample.sample_type }}
+                        <input type="hidden" name="cellblock_sample_type_{{ forloop.counter }}" value="{{ entry2.sample.sample_type }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        {{ entry2.sample.container_type }}
+                        <input type="hidden" name="cellblock_container_type_{{ forloop.counter }}" value="{{ entry2.sample.container_type }}">
+                    </td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        <select name="cellblock_prep_type_{{ forloop.counter }}" style="width: 100%; padding: 4px;">
+                            <option value="Cell Block">Cell Block</option>
+                        </select>
+                    </td>
+                </tr>
+				<input type="hidden" name="cellblock_test_name_{{ forloop.counter }}" value="{{ "" }}">
+				<input type="hidden" name="cellblock_test_id_{{ forloop.counter }}" value="{{ "" }}">
+                <input type="hidden" name="cellblock_sample_test_map_id_{{ forloop.counter }}" value="{{ "" }}">
+                {% endfor %}
+            </tbody>
+        </table>
+        <input type="hidden" name="cellblock_total_rows" value="{{ sample_data|length }}">
+    </div>
+
+    <div style="text-align: center; margin-bottom: 30px; margin-top: 20px;">
+        <button id="submit-button" type="submit">Submit</button>
+    </div>
+
+    <div id="processing" style="display: none; text-align: center; margin-top: 20px; color:red;">
+        <strong>Processing, please wait...</strong>
+    </div>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const firstCheckbox = document.getElementById("cellblock-checkbox");
+        if (firstCheckbox) {
+            firstCheckbox.focus();
+        }
+    });
+
+    document.getElementById("smearing-checkbox").addEventListener("change", function () {
+        document.getElementById("smearing-section").style.display = this.checked ? "block" : "none";
+    });
+
+    document.getElementById("cellblock-checkbox").addEventListener("change", function () {
+        document.getElementById("cellblock-section").style.display = this.checked ? "none" : "none";
+    });
+
+    // NEW: Ctrl + Enter Shortcut
+    document.addEventListener("keydown", function(e) {
+        if (e.ctrlKey && e.key === "Enter") {
+            const submitBtn = document.getElementById("submit-button");
+            if (submitBtn) {
+                submitBtn.click();
+            }
+        }
+    });
+
+    document.getElementById("sample-data-form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const form = e.target;
+        const smearingChecked = document.getElementById("smearing-checkbox").checked;
+        const CellBlockChecked = document.getElementById("cellblock-checkbox").checked;
+
+        if (!smearingChecked && !CellBlockChecked){
+            alert('Please Select a Process before submitting.');
+            return;
+        }
+
+        let rows = [];
+        if (smearingChecked) {
+            const total = parseInt(form.querySelector('[name="smearing_total_rows"]').value);
+            for (let i = 1; i <= total; i++) {
+                const sample_id = form.querySelector(`[name="smearing_sample_id_${i}"]`)?.value;
+                const accession_id = form.querySelector(`[name="smearing_accession_id_${i}"]`)?.value;
+                const part_no = form.querySelector(`[name="smearing_part_no_${i}"]`)?.value;
+                const container_type = form.querySelector(`[name="smearing_container_type_${i}"]`)?.value;
+                const sample_type = form.querySelector(`[name="smearing_sample_type_${i}"]`)?.value;
+                const test_name = form.querySelector(`[name="smearing_test_name_${i}"]`)?.value;
+                const test_id = form.querySelector(`[name="smearing_test_id_${i}"]`)?.value;
+                const sample_test_map_id = form.querySelector(`[name="smearing_sample_test_map_id_${i}"]`)?.value;
+                const prep_type = form.querySelector(`[name="smearing_prep_type_${i}"]`)?.value;
+
+                if (!prep_type || prep_type === "") {
+                    alert(`Please select a Preparation Type for the sample ID: ${sample_id}`);
+                    return;
+                }
+
+                rows.push({
+                    sample_id,
+                    accession_id,
+                    part_no,
+                    container_type,
+                    sample_type,
+                    test_id,
+                    sample_test_map_id,
+                    prep_type
+                });
+            }
+        }
+        if (CellBlockChecked) {
+            const total = parseInt(form.querySelector('[name="cellblock_total_rows"]').value);
+            for (let i = 1; i <= total; i++) {
+                const sample_id = form.querySelector(`[name="cellblock_sample_id_${i}"]`)?.value;
+                const accession_id = form.querySelector(`[name="cellblock_accession_id_${i}"]`)?.value;
+                const part_no = form.querySelector(`[name="cellblock_part_no_${i}"]`)?.value;
+                const container_type = form.querySelector(`[name="cellblock_container_type_${i}"]`)?.value;
+                const sample_type = form.querySelector(`[name="cellblock_sample_type_${i}"]`)?.value;
+				const test_name = form.querySelector(`[name="cellblock_test_name_${i}"]`)?.value;
+                const test_id = form.querySelector(`[name="cellblock_test_id_${i}"]`)?.value;
+                const sample_test_map_id = form.querySelector(`[name="cellblock_sample_test_map_id_${i}"]`)?.value;
+                const prep_type = form.querySelector(`[name="cellblock_prep_type_${i}"]`)?.value;
+
+                if (!prep_type || prep_type === "") {
+                    alert(`Please select a Preparation Type for the sample ID: ${sample_id}`);
+                    return;
+                }
+
+                rows.push({
+                    sample_id,
+                    accession_id,
+                    part_no,
+                    container_type,
+                    sample_type,
+					test_id,
+					sample_test_map_id,
+                    prep_type
+                });
+            }
+        }
+
+        fetch("/gulfcoastpathologists/sample/sample/send-to-prepare-liquid-sample/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": form.querySelector('[name="csrfmiddlewaretoken"]').value
+            },
+            body: JSON.stringify(rows)
+        }).then(response => response.json())
+            .then(data => {
+                if (data.status === "ok") {
+                    console.log("Labels submitted for printing!");
+                    window.opener.location.reload();
+                    window.close();
+                } else if (data.status === "No data") {
+                    console.log("No Data Sent to Submit Action");
+                    window.parent.location.reload();
+                } else if (data.status === "error") {
+                    let fullMessage = data.message;
+                    if (Array.isArray(data.details) && data.details.length > 0) {
+                        fullMessage += "\n\n" + data.details.join("\n");
+                    }
+                    console.log(fullMessage);
+                    alert(fullMessage);
+                } else {
+                    alert("Something went wrong.");
+                }
+            }).catch(error => {
+                alert("Network error.");
+                console.error(error);
+            });
+    });
+</script>
+{% endblock %}

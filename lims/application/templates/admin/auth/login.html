@@ -1,0 +1,157 @@
+{% extends "registration/base.html" %}
+
+{% load i18n jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block content %}
+    <p class="login-box-msg">{{ jazzmin_settings.welcome_sign }}</p>
+    <form action="{{ app_path }}" method="post">
+        {% csrf_token %}
+        {% if user.is_authenticated %}
+            <p class="errornote">
+                <div class="callout callout-danger">
+                    <p>
+                        {% blocktrans trimmed %}
+                            You are authenticated as {{ username }}, but are not authorized to
+                            access this page. Would you like to login to a different account?
+                        {% endblocktrans %}
+                    </p>
+                </div>
+            </p>
+        {% endif %}
+        {% if form.errors %}
+            {% if form.username.errors %}
+                <div class="callout callout-danger">
+                    <p>{{ form.username.label }}: {{ form.username.errors|join:', ' }}</p>
+                </div>
+            {% endif %}
+            {% if form.password.errors %}
+                <div class="callout callout-danger">
+                    <p>{{ form.password.label }}: {{ form.password.errors|join:', ' }}</p>
+                </div>
+            {% endif %}
+            {% if form.non_field_errors %}
+                <div class="callout callout-danger">
+                    {% for error in form.non_field_errors %}
+                        <p>{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endif %}
+        <div class="input-group mb-3">
+            <input type="text" name="username" class="form-control" placeholder="{{ form.username.label }}" required>
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-user"></span>
+                </div>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <input type="password" name="password" class="form-control" placeholder="{{ form.password.label }}" required>
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-lock"></span>
+                </div>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <select name="selectedsite" class="form-control" required>
+                {% for value, name in form.selectedsite.field.choices %}
+                    <option value="{{ value }}">{{ name }}</option>
+                {% endfor %}
+            </select>
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-globe"></span>
+                </div>
+            </div>
+        </div>
+        <div class="input-group mb-3">
+            <input type="hidden" id="selectedjobtype" name="selectedjobtype" required>
+            <select name="selectedjobtypedummy" class="form-control">
+            </select>
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <span class="fas fa-globe"></span>
+                </div>
+            </div>
+        </div>
+        {% url 'admin_password_reset' as password_reset_url %}
+        {% if password_reset_url %}
+            <div class="mb-3">
+                <div class="password-reset-link" style="text-align: center;">
+                    <a href="{{ password_reset_url }}">
+                        {% trans 'Forgotten your password or username?' %}
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-12">
+                <button type="submit" class="btn {{ jazzmin_ui.button_classes.primary }} btn-block">
+                    {% trans "Log in" %}
+                </button>
+            </div>
+        </div>
+    </form>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+    const siteSelect = document.querySelector('select[name="selectedsite"]');
+    const jobTypeSelect = document.querySelector('select[name="selectedjobtypedummy"]');
+    const actualJobtype = document.getElementById('selectedjobtype');
+    actualJobtype.value = 'None';
+
+    siteSelect.addEventListener('change', function () {
+        const siteId = this.value;
+        if ('None' == siteId) {
+            actualJobtype.value = 'None';
+            jobTypeSelect.innerHTML = '';
+            return;
+        }
+        const url = `/ajax/load-job-types/?site_id=${siteId}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                jobTypeSelect.innerHTML = '';
+                data.forEach(item => {
+                    var optionElement = document.createElement('option');
+                    optionElement.value = item.name
+                    optionElement.text = item.name;
+                    jobTypeSelect.appendChild(optionElement);
+                });
+                actualJobtype.value = data[0].name;
+            })
+            .catch(error => console.error('Error loading job types:' + error));
+    });
+    jobTypeSelect.addEventListener('change', function () {
+        actualJobtype.value = this.value;
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+fetch(url, {
+    method: 'GET',
+    headers: {
+        'X-CSRFToken': csrftoken,
+    },
+    credentials: 'include'
+})
+</script>
+{% endblock %}

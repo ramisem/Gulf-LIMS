@@ -1,0 +1,24 @@
+<script>
+    const ids = "{{ ids }}";
+    const baseUrl = "{{ url }}";
+
+    const popupWidth = parseInt("{{ popupWidth }}");
+    const popupHeight = parseInt("{{ popupHeight }}");
+
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+
+    const left = Math.floor((screenWidth - popupWidth) / 2);
+    const topPos = Math.floor((screenHeight - popupHeight) / 2);
+
+    const url = window.location.protocol + "//" + window.location.host + `${baseUrl}?ids=${ids}`;
+
+    window.open(url, '_blank', `width=${popupWidth},height=${popupHeight},scrollbars=yes,left=${left},top=${topPos}`);
+    setTimeout(() => {
+        const fallbackUrl = "{% url 'admin:sample_sample_changelist' %}";
+        const referrer = document.referrer;
+
+        console.log("Referrer:", referrer);
+        window.location.href = referrer || fallbackUrl;
+    }, 500);
+</script>

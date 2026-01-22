@@ -1,0 +1,115 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+{% get_current_language as LANGUAGE_CODE %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+<style>
+        /* Card and container styling */
+        .custom-form-container {
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        .page-header {
+            margin-bottom: 2rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #DEE2E6;
+        }
+        .card {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border: 1px solid #DEE2E6;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        /* Form field spacing */
+        .card-body .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .card-body label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        .card-body input,
+        .card-body select,
+        .card-body textarea {
+            padding: 0.375rem 0.75rem;
+            margin-bottom: 0.5rem;
+            width: 100%;
+            border: 1px solid #CED4DA;
+            border-radius: 0.25rem;
+        }
+        /* Dropdown styles for button groups (if needed) */
+        .btn-group-hover {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        .btn-group-hover > input[type="button"] {
+            width: 100%;
+        }
+        .btn-group-hover .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: -3px;
+            z-index: 1000;
+            width: 100%;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 0.5rem 0;
+        }
+        .btn-group-hover:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: block;
+            white-space: nowrap;
+        }
+        .btn-group-success:hover .dropdown-menu .dropdown-item:hover {
+            background-color: #28A745;
+            color: #fff;
+        }
+        .btn-group-primary:hover .dropdown-menu .dropdown-item:hover {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+</style>
+{% endblock %}
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+<script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+<script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+{% endblock %}
+{% block content %}
+<div class="custom-form-container">
+    <div class="page-header">
+        <h2>Update QC Status</h2>
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <!-- Ensure selected samples are passed -->
+                {% for sample in samples %}
+                <input type="hidden" name="_selected_action" value="{{ sample.sample_id }}">
+                {% endfor %}
+                <input type="hidden" name="action" value="image_qcstatus">
+                <input type="hidden" name="apply" value="1">
+                <button type="submit" class="btn btn-primary">Submit</button>
+                <a href="/gulfcoastpathologists/ihcworkflow/ihcworkflow/" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

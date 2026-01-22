@@ -1,0 +1,84 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static jazzmin %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block userlinks %}
+    {% url 'django-admindocs-docroot' as docsroot %}
+    {% if docsroot %}<a href="{{ docsroot }}">{% trans 'Documentation' %}</a> / {% endif %}
+    {% trans 'Change password' %} / <a href="{% url 'admin:logout' %}">{% trans 'Log out' %}</a>
+{% endblock %}
+
+{% block breadcrumbs %}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% trans 'Home' %}</a></li>
+    <li class="breadcrumb-item active">{% trans 'JobType change' %}</li>
+</ol>
+{% endblock %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block content_title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header with-border">
+                <h4 class="card-title">
+                    <p>{% trans "Please select the JobType" %}</p>
+                </h4>
+            </div>
+
+            <div class="card-body">
+                <div id="content-main">
+                    <form method="post">{% csrf_token %}
+                        <div>
+                            {% if form.errors %}
+                            <div class="callout callout-danger">
+                                {% if errors|length == 1 %}{% trans "Please correct the error below." %}{% else %}{% trans "Please correct the errors below." %}{% endif %}
+                            </div>
+                            {% endif %}
+
+                            <fieldset class="module aligned">
+                                <div class="row form-group">
+                                    <div class="col-12 col-md-2">
+                                        <label class="control-label float-md-right">
+                                            {{ form.selectedjobtype.field.label }}
+                                        </label>
+                                    </div>
+                                    <div class="col-12 col-md-6">
+                                        <select name="selectedjobtype" class="form-control">
+                                            {% for value, name in form.selectedjobtype.field.choices %}
+                                                <option value="{{ value }}">{{ name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        {% if form.selectedjobtype.help_text %}
+                                        <div class="help-block">{{ form.selectedjobtype.help_text|safe }}</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-12 col-md-4">
+                                        <div class="help-block text-red">
+                                            {{ form.selectedjobtype.errors }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <div class="row">
+                                <div class="submit-row col-md-12 col-md-push-2">
+                                    <input type="submit" value="{% trans 'Switch JobType' %}" class="btn {{ jazzmin_ui.button_classes.primary }}">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+
+{% block extrajs %}
+<script>
+    $('[required]').before('<span class="text-red" style="margin-left: -10px;">* </span>');
+</script>
+{% endblock %}

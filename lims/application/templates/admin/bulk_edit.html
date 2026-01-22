@@ -1,0 +1,365 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls static admin_modify jazzmin %}
+{% get_jazzmin_settings request as jazzmin_settings %}
+{% get_jazzmin_ui_tweaks as jazzmin_ui %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+    <style>
+        /* Increase spacing for form groups in the card body */
+        .card-body .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .card-body label {
+            margin-bottom: 0.5rem;
+        }
+        .card-body input,
+        .card-body select {
+            padding: 0.375rem 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        /* Vertical tabs styling */
+        .vertical-tabs .nav-link {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0.5rem 1rem;
+        }
+        /* Ensure the jazzy actions buttons have a little margin between them */
+        #jazzy-actions .form-group {
+            margin-bottom: 1rem;
+        }
+        /* NEW: Hover dropdown styling for button groups */
+        .btn-group-hover {
+            position: relative;
+            display: inline-block;
+            width: 100%;  /* Ensure full width for the container */
+        }
+        .btn-group-hover > input[type="button"] {
+            width: 100%;  /* Ensure the button takes full width */
+        }
+        .btn-group-hover .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            margin-top: -3px;  /* Removed gap by overlapping the parent's border */
+            z-index: 1000;
+            width: 100%;  /* Match dropdown width to button */
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 0.5rem 0;
+        }
+        .btn-group-hover:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            display: block;
+            white-space: nowrap;
+        }
+        /* Hover styling: When hovering on a button group, dropdown items get highlighted with the main button's color */
+        .btn-group-success:hover .dropdown-menu .dropdown-item:hover {
+            background-color: #28a745;  /* Save (green) button color */
+            color: #fff;
+        }
+        .btn-group-primary:hover .dropdown-menu .dropdown-item:hover {
+            background-color: #007bff;  /* Route (blue) button color */
+            color: #fff;
+        }
+    </style>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    {# First, load jQuery from the admin vendor files #}
+    <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.min.js' %}"></script>
+    {# Load i18n so that gettext and gettext_noop are defined #}
+    <script type="text/javascript" src="{% url 'admin:jsi18n' %}"></script>
+    {# Now load the rest of the admin scripts in the correct order #}
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/calendar.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/admin/DateTimeShortcuts.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'admin/css/widgets.css' %}" />
+    {# Remove duplicate inclusion of formset media to prevent double icons #}
+{% endblock %}
+
+{% block coltype %}colM{% endblock %}
+
+{% block bodyclass %}
+    {{ block.super }} app-{{ opts.app_label|default:"sample" }} model-{{ opts.model_name|default:"sample" }} change-form
+{% endblock %}
+
+{% if not is_popup %}
+    {% block breadcrumbs %}
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+                <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+            </li>
+            <li class="breadcrumb-item">
+                <a href="{% url 'admin:app_list' app_label=opts.app_label|default:'sample' %}">
+                    {{ opts.app_config.verbose_name|default:"Sample" }}
+                </a>
+            </li>
+            <li class="breadcrumb-item">
+                {% if has_permission %}
+                    <a href="{% url opts|admin_urlname:'changelist' %}">
+                        {{ opts.verbose_name_plural|default:"Sample"|capfirst }}
+                    </a>
+                {% else %}
+                    {{ opts.verbose_name_plural|default:"Sample"|capfirst }}
+                {% endif %}
+            </li>
+            <li class="breadcrumb-item active">Bulk Edit</li>
+        </ol>
+    {% endblock %}
+{% endif %}
+
+{% block content_title %}Bulk Edit Samples{% endblock %}
+
+{% block content %}
+<div id="content-main" class="col-12">
+    <form method="post" novalidate>
+        {% csrf_token %}
+        <div class="row">
+            <!-- Main content: Nested row with vertical tabs and form fields -->
+            <div class="col-12 col-lg-9">
+                <div class="row">
+                    <!-- Left nested column: Vertical navigation -->
+                    <div class="col-12 col-md-3">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h5 class="card-title">Samples</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <!-- Next Sample button moved here, just below the Samples label -->
+                                <div class="p-2">
+                                    <a id="next-sample-btn" class="btn btn-secondary btn-sm btn-block" href="#">
+                                        Move to Next Sample
+                                    </a>
+                                </div>
+                                <div class="nav flex-column nav-pills vertical-tabs" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                                    {% for form in formset.forms %}
+                                        <a class="nav-link {% if forloop.first %}active{% endif %}"
+                                           id="v-pills-{{ forloop.counter }}-tab"
+                                           data-toggle="pill"
+                                           href="#v-pills-{{ forloop.counter }}"
+                                           role="tab"
+                                           aria-controls="v-pills-{{ forloop.counter }}"
+                                           aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+                                           data-sample-id="{{ form.instance.sample_id }}">
+                                            <!--Sample: {{ form.instance.sample_id }}-->
+                                            {{ form.instance.accession_id }} : {{ form.instance.part_no }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Right nested column: Tab content for each sample's form -->
+                    <div class="col-12 col-md-9">
+                        <div class="tab-content" id="v-pills-tabContent">
+                            {% for form in formset.forms %}
+                                <div class="tab-pane fade {% if forloop.first %}show active{% endif %}"
+                                     id="v-pills-{{ forloop.counter }}"
+                                     role="tabpanel"
+                                     aria-labelledby="v-pills-{{ forloop.counter }}-tab">
+                                    <div class="card mb-3">
+                                        <div class="card-body">
+                                            {% if form.dynamic_fields %}
+                                                <!-- Render inner tabs if dynamic fields exist -->
+                                                <ul class="nav nav-tabs" role="tablist">
+                                                    <li class="nav-item">
+                                                        <a class="nav-link active" data-toggle="tab" href="#static-{{ forloop.counter }}">
+                                                            General
+                                                        </a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" data-toggle="tab" href="#dynamic-{{ forloop.counter }}">
+                                                            {{ form.dynamic_fieldset_title }}
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                                <div class="tab-content mt-3">
+                                                    <div class="tab-pane fade show active" id="static-{{ forloop.counter }}">
+                                                        {% for field in form %}
+                                                            {% if field.name not in form.dynamic_fields %}
+                                                                <div class="form-group field-{{ field.name }}">
+                                                                    <div class="row">
+                                                                        <label class="col-sm-3 text-left" for="{{ field.id_for_label }}">
+                                                                            {{ field.label }}
+                                                                            {% if field.field.required %}
+                                                                                <span class="text-red">*</span>
+                                                                            {% endif %}
+                                                                        </label>
+                                                                        <div class="col-sm-7">
+                                                                            {{ field }}
+                                                                            {% if field.help_text %}
+                                                                                <div class="help-block">{{ field.help_text }}</div>
+                                                                            {% endif %}
+                                                                            {% for error in field.errors %}
+                                                                                <div class="help-block text-red">{{ error }}</div>
+                                                                            {% endfor %}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <div class="tab-pane fade" id="dynamic-{{ forloop.counter }}">
+                                                        {% for field in form %}
+                                                            {% if field.name in form.dynamic_fields %}
+                                                                <div class="form-group field-{{ field.name }}">
+                                                                    <div class="row">
+                                                                        <label class="col-sm-3 text-left" for="{{ field.id_for_label }}">
+                                                                            {{ field.label }}
+                                                                            {% if field.field.required %}
+                                                                                <span class="text-red">*</span>
+                                                                            {% endif %}
+                                                                        </label>
+                                                                        <div class="col-sm-7">
+                                                                            {{ field }}
+                                                                            {% if field.help_text %}
+                                                                                <div class="help-block">{{ field.help_text }}</div>
+                                                                            {% endif %}
+                                                                            {% for error in field.errors %}
+                                                                                <div class="help-block text-red">{{ error }}</div>
+                                                                            {% endfor %}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            {% else %}
+                                                <!-- If no dynamic fields, render all fields normally -->
+                                                {% for field in form %}
+                                                    <div class="form-group field-{{ field.name }}">
+                                                        <div class="row">
+                                                            <label class="col-sm-3 text-left" for="{{ field.id_for_label }}">
+                                                                {{ field.label }}
+                                                            </label>
+                                                            <div class="col-sm-7">
+                                                                {{ field }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Actions column: Placed to the right of the form card -->
+            <div class="col-12 col-lg-3">
+                <!-- Modified Jazzy Actions with hover dropdown groups -->
+                <div id="jazzy-actions">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="form-group">
+                                <input type="submit" value="{% translate 'Save' %}" class="btn btn-success form-control" name="_continue">
+                            </div>
+                            {# Return button - MODIFIED to preserve query filters #}
+                            <div class="form-group">
+                                {% url opts|admin_urlname:'changelist' as base_changelist_url %}
+                                {% if request.GET.q %}
+                                    <a href="{{ base_changelist_url }}?q={{ request.GET.q|urlencode }}" class="btn btn-secondary form-control return-url-link" data-base-url="{{ base_changelist_url }}">
+                                        {% translate 'Return' %}
+                                    </a>
+                                {% else %}
+                                    <a href="{{ base_changelist_url }}" class="btn btn-secondary form-control return-url-link" data-base-url="{{ base_changelist_url }}">
+                                        {% translate 'Return' %}
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <!--<div class="form-group btn-group-hover btn-group-success">
+                                <input type="button" value="Save" class="btn btn-success btn-block">
+                                <div class="dropdown-menu">
+                                    <button type="submit" class="dropdown-item" name="_save">Save and Return</button>
+                                    <button type="submit" class="dropdown-item" name="_continue">Save and continue editing</button>
+                                </div>
+                            </div>
+                            <div class="object-tools btn-group-hover btn-group-primary">
+                                <input type="button" class="btn btn-block btn-primary btn-sm" value="Route">
+                                <div class="dropdown-menu">
+                                    <a id="route-sample-btn" class="dropdown-item" href="#">Current Sample to Next Step</a>
+                                    <a id="route-all-btn" class="dropdown-item" href="#">All Samples to Next Step</a>
+                                </div>
+                            </div>-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{ formset.management_form }}
+    </form>
+</div>
+{% endblock %}
+
+{% block extrajs %}
+    {{ block.super }}
+    <script type="text/javascript">
+        // Ensure django.jQuery is set
+        window.django = window.django || {};
+        django.jQuery = django.jQuery || jQuery;
+    </script>
+    <script type="text/javascript">
+        django.jQuery(document).ready(function(){
+            // Hide the primary key field for each form in the formset.
+            // Adjust the selector if your field's name or id differs.
+            django.jQuery('input[name$="-sample_id"]').each(function(){
+                django.jQuery(this).closest('.form-group').css('display', 'none');
+            });
+            django.jQuery('input[name$="-sample_ptr"]').each(function(){
+                django.jQuery(this).closest('.form-group').css('display', 'none');
+            });
+            django.jQuery('input[name$="-sample_type_pk"]').each(function(){
+                django.jQuery(this).closest('.form-group').css('display', 'none');
+            });
+            django.jQuery('input[name$="-container_type_pk"]').each(function(){
+                django.jQuery(this).closest('.form-group').css('display', 'none');
+            });
+        });
+    </script>
+    <script type="text/javascript" src="{% static 'vendor/select2/js/select2.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'jazzmin/js/change_form.js' %}"></script>
+    {% if jazzmin_settings.related_modal_active %}
+        <script type="text/javascript" src="{% static 'jazzmin/plugins/bootstrap-show-modal/bootstrap-show-modal.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'jazzmin/js/related-modal.js' %}"></script>
+    {% endif %}
+    <!-- Import our custom JS files -->
+    <script type="text/javascript" src="{% static 'js/sample/sample.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/util/disable_breadcrumb_links.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/util/util.js' %}"></script>
+    {# Script to preserve query filters in the Return button #}
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+            const returnLink = document.querySelector('.return-url-link');
+            if (returnLink && window.location.search) {
+                const params = new URLSearchParams(window.location.search);
+                const qParam = params.get('q');
+
+                if (qParam) {
+                    const baseUrl = returnLink.getAttribute('data-base-url');
+                    returnLink.href = baseUrl + '?q=' + encodeURIComponent(qParam);
+                    console.log('[BulkEdit] Return URL with filter:', returnLink.href);
+                }
+            }
+        });
+    </script>
+    <script type="text/javascript">
+       window.bulkEditIds = "{{ request.GET.ids }}";
+       window.workflow = "{{ workflow }}";  {# e.g., "enterprise" or "ihc" #}
+       window.sampleRouteUrl = "{% url 'sample:sample_route' %}";
+       window.ihcSampleRouteUrl = "{% url 'ihcworkflow:sample_route' %}";
+    </script>
+{% endblock %}
