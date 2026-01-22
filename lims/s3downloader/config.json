@@ -1,0 +1,23 @@
+{
+  "ENCRYPTED_AWS_ACCESS_KEY_ID": "gAAAAABoWl7o1I1kYrOhHGSKvEyMqnH8WMntV7J_SK5DdQC53AiJf1Km06S1CaOsNl3aX-3SeSoM0VgTqYNauIqh5MKd5rPI-hVuLeE6ix7C1-HcAyrwMQk=",
+  "ENCRYPTED_AWS_SECRET_ACCESS_KEY": "gAAAAABoWl7ojEbjIokJzPxqia6-6dAvzX3YnEaxruRu00Z3aCecbAKhBnnYorRVr4SGBvcrLrl0tw6MOesZEkxtKIvTGUb_1iv20HGE8u6aMwJmR3Y6qPEdNH6XohxGSCnCv3W-g8Sc",
+  "AWS_S3_REGION_NAME": "us-east-1",
+  "POLLING_INTERVAL_SECONDS": 300,
+  "DOWNLOAD_PATHS": [
+    {
+      "s3_bucket": "gulfdev",
+      "s3_prefix": "labels/ddfiles/cassette/",
+      "local_full_path": "C:/Users/vijay/Desktop/S3Downloads/cassette_labels"
+    },
+    {
+      "s3_bucket": "gulfdev",
+      "s3_prefix": "labels/ddfiles/flihc/",
+      "local_full_path": "C:/Users/vijay/Desktop/S3Downloads/flihc"
+    },
+    {
+      "s3_bucket": "gulfdev",
+      "s3_prefix": "labels/ddfiles/",
+      "local_full_path": "C:/Users/vijay/Desktop/S3Downloads/ddfiles"
+    }
+  ]
+}
